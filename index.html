@@ -1,0 +1,115 @@
+﻿<html>
+<head runat="server">
+	<title></title>
+	<link href="Styles/bootstrap.css" rel="stylesheet" />
+	<link href="Styles/toastr.min.css" rel="stylesheet" />
+	<script src="Scripts/jquery-1.11.0.min.js"></script>
+	<script src="Scripts/toastr.min.js"></script>
+	<script src="Scripts/bootstrap.js"></script>
+    <script src="Scripts/raphael-min.js"></script>
+    <script src="Scripts/colorwheel.js"></script>
+	<script src="Scripts/huejs.js"></script>
+	<style type="text/css">
+		#colorPick {
+			margin-top: 60px;
+			/*margin-left: 20px;*/
+		}
+
+		.Cancel {
+			display: none;
+		}
+
+		#lights {
+			margin-top: 60px;
+		}
+	</style>
+	<script type="text/ecmascript">
+
+		function RGBtoXY(R, G, B) {
+			var X = 0.4124 * R + 0.3576 * G + 0.1805 * B;
+			var Y = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+			var Z = 0.0193 * R + 0.1192 * G + 0.9505 * B;
+
+			var x = X / (X + Y + Z);
+			var y = Y / (X + Y + Z);
+
+			//return {
+			//	x: x.toFixed(2),
+			//	y: y.toFixed(2)
+			//}
+			return [x, y];
+		}
+
+		$('document').ready(function () {
+
+
+			var ip = null;
+
+			$.getJSON('http://www.meethue.com/api/nupnp', function (d) {
+				var ob = eval(d);
+				if (ob.length > 0) {
+					ip = ob[0].internalipaddress;
+				}
+			}).done(function () {
+
+
+				var hjs = HueJS({
+					ipAddress: ip,
+					devicetype: "test2",
+					username: "HEemUCH3ZQtVJfKh"
+				});
+
+				$('#btn1').click(function (e) {
+					e.preventDefault();
+					hjs.turnOn(1);
+				});
+
+				$('#btn2').click(function (e) {
+					e.preventDefault();
+					var ejdf = hjs.turnOff(1);
+				});
+
+				//$('#btn3').colorpicker().on('changeColor', function (ev) {
+				//	var rgb = ev.color.toRGB();
+				//	var result = hjs.setValue(1, { 'xy': RGBtoXY(rgb.r, rgb.g, rgb.b) });
+				//	console.log(result);
+				//});
+				var cw = Raphael.colorwheel($("#colorPick")[0], 300, 180);
+				cw.onchange(function (color) {
+				    console.log(color);
+				    var result = hjs.setValue(1, { 'xy': RGBtoXY(color.r, color.g,color.b) });
+				    console.log(result);
+				});
+			});
+
+
+
+		});
+
+	</script>
+</head>
+<body>
+	<form id="form1" runat="server">
+		<div class="col-sm-12">
+			<h1 class="col-sm-offset-4 col-xs-offset-1 col-xs-12">Testing C3 Lights</h1>
+			<div id="lights" class="col-sm-7 col-sm-offset-4 col-xs-offset-1 col-xs-12">
+				<button id="btn1" class="btn btn-info">Turn On</button>
+				<button id="btn2" class="btn btn-danger">Turn Off</button>
+				<button id="btn3" class="btn btn-success">Blink</button>
+				<div id="colorPick">
+				</div>
+			</div>
+			<div class="modal fade" id="successShow">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<span id="responseSpin">Success</span>
+						</div>
+						<div class="modal-body"></div>
+					</div>
+				</div>
+			</div>
+	</form>
+</body>
+</html>
