@@ -57,10 +57,11 @@
 				var ob = eval(d);
 				if (ob.length > 0) {
 					ip = ob[0].internalipaddress;
+					$('#lights').show();
 				}
 				else {
 					$('#lights').hide();
-					$('<h3>Cannot connect to the Hue Bridge...</h3>').appendTo('#form1');
+					$('<h3>Cannot connect to the Hue Bridge...</h3>').appendTo('#container');
 					toastr.error('Cannot connect...');
 				}
 			}).done(function () {
@@ -99,8 +100,8 @@
 
 			}).fail(function () {
 				$('#lights').hide();
-				$('<h3>Cannot connect to the Hue Bridge...</h3>').appendTo('#form1');
-				toastr.error('Cannot connect...');
+				$('<h3>Cannot connect to the Hue Bridge (No Internet Connection)...</h3>').appendTo('#container');
+				toastr.error('Cannot connect (No Internet Connection)...');
 			});
 
 
@@ -111,9 +112,9 @@
 </head>
 <body>
 	<form id="form1" runat="server">
-		<div class="col-sm-12">
+		<div class="col-sm-12" id="container">
 			<h1 class="col-sm-offset-4 col-xs-offset-1 col-xs-12">Testing C3 Lights</h1>
-			<div id="lights" class="col-sm-7 col-sm-offset-4 col-xs-offset-1 col-xs-12">
+			<div id="lights" class="col-sm-7 col-sm-offset-4 col-xs-offset-1 col-xs-12" style="display:none;">
 				<button id="btn1" class="btn btn-info">Turn On</button>
 				<button id="btn2" class="btn btn-danger">Turn Off</button>
 				<button id="btn3" class="btn btn-success">Color Picker</button>
