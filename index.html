@@ -1,4 +1,8 @@
-﻿<html>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Test.aspx.cs" Inherits="HueApi.Test" %>
+
+<!DOCTYPE html>
+
+<html>
 <head runat="server">
 	<title></title>
 	<link href="Styles/bootstrap.css" rel="stylesheet" />
@@ -6,13 +10,13 @@
 	<script src="Scripts/jquery-1.11.0.min.js"></script>
 	<script src="Scripts/toastr.min.js"></script>
 	<script src="Scripts/bootstrap.js"></script>
-    <script src="Scripts/raphael-min.js"></script>
-    <script src="Scripts/colorwheel.js"></script>
+	<script src="Plugins/Picker/js/bootstrap-colorpicker.min.js"></script>
 	<script src="Scripts/huejs.js"></script>
+	<link href="Plugins/Picker/css/bootstrap-colorpicker.css" rel="stylesheet" />
 	<style type="text/css">
 		#colorPick {
-			margin-top: 60px;
-			/*margin-left: 20px;*/
+			margin-top: 20px;
+			margin-left: 20px;
 		}
 
 		.Cancel {
@@ -22,6 +26,10 @@
 		#lights {
 			margin-top: 60px;
 		}
+		h3 {
+			margin-left:20px;
+		}
+
 	</style>
 	<script type="text/ecmascript">
 
@@ -37,7 +45,6 @@
 			//	x: x.toFixed(2),
 			//	y: y.toFixed(2)
 			//}
-
 			return [x, y];
 		}
 
@@ -51,8 +58,14 @@
 				if (ob.length > 0) {
 					ip = ob[0].internalipaddress;
 				}
+				else {
+					$('#lights').hide();
+					$('<h3>Cannot connect to the Hue Bridge...</h3>').appendTo('#form1');
+					toastr.error('Cannot connect...');
+				}
 			}).done(function () {
 
+				var tm = null;
 
 				var hjs = HueJS({
 					ipAddress: ip,
@@ -70,17 +83,24 @@
 					var ejdf = hjs.turnOff(1);
 				});
 
-				//$('#btn3').colorpicker().on('changeColor', function (ev) {
-				//	var rgb = ev.color.toRGB();
-				//	var result = hjs.setValue(1, { 'xy': RGBtoXY(rgb.r, rgb.g, rgb.b) });
-				//	console.log(result);
-				//});
-				var cw = Raphael.colorwheel($("#colorPick")[0], 300, 180);
-				cw.onchange(function (color) {
-				    console.log(color);
-				    var result = hjs.setValue(1, { 'xy': RGBtoXY(color.r, color.g,color.b) });
-				    console.log(result);
+				$('#btn3').colorpicker().on('changeColor', function (ev) {
+
+					if (tm) {
+						clearTimeout(tm);
+					}
+
+					tm = setTimeout(function () {
+						var rgb = ev.color.toRGB();
+						var result = hjs.setValue({ 'xy': RGBtoXY(rgb.r, rgb.g, rgb.b), 'colormode': 'xy' });
+						console.log(result);
+
+					}, 1000);
 				});
+
+			}).fail(function () {
+				$('#lights').hide();
+				$('<h3>Cannot connect to the Hue Bridge...</h3>').appendTo('#form1');
+				toastr.error('Cannot connect...');
 			});
 
 
@@ -96,7 +116,7 @@
 			<div id="lights" class="col-sm-7 col-sm-offset-4 col-xs-offset-1 col-xs-12">
 				<button id="btn1" class="btn btn-info">Turn On</button>
 				<button id="btn2" class="btn btn-danger">Turn Off</button>
-				<button id="btn3" class="btn btn-success">Blink</button>
+				<button id="btn3" class="btn btn-success">Color Picker</button>
 				<div id="colorPick">
 				</div>
 			</div>
